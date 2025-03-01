@@ -8,7 +8,7 @@ interface StudentQRProps {
 }
 
 const StudentQR: React.FC<StudentQRProps> = ({ student, baseUrl }) => {
-  const qrValue = `${baseUrl}/scan/${student.id}`;
+  const qrValue = `${student.id}`;
 
   return (
     <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md">

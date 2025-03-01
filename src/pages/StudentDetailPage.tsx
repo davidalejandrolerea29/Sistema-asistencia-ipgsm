@@ -151,7 +151,7 @@ const StudentDetailPage: React.FC = () => {
                   {student && (
                     <StudentQR 
                       student={student} 
-                      baseUrl={window.location.origin} 
+                      baseUrl={student.id} 
                     />
                   )}
                   <button

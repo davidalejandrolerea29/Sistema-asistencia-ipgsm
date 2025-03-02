@@ -17,6 +17,7 @@ const StudentList: React.FC<StudentListProps> = ({ students, onDelete }) => {
         <thead className="bg-gray-100">
           <tr>
             <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Nombre</th>
+            <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">DNI</th>
             <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Curso</th>
             <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Asistencia Hoy</th>
             <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Acciones</th>
@@ -25,7 +26,7 @@ const StudentList: React.FC<StudentListProps> = ({ students, onDelete }) => {
         <tbody className="divide-y divide-gray-200">
           {students.length === 0 ? (
             <tr>
-              <td colSpan={4} className="py-4 px-4 text-center text-gray-500">
+              <td colSpan={5} className="py-4 px-4 text-center text-gray-500">
                 No hay estudiantes registrados en este curso
               </td>
             </tr>
@@ -38,6 +39,7 @@ const StudentList: React.FC<StudentListProps> = ({ students, onDelete }) => {
               return (
                 <tr key={student.id} className="hover:bg-gray-50">
                   <td className="py-3 px-4 text-sm">{student.name}</td>
+                  <td className="py-3 px-4 text-sm">{student.dni}</td>
                   <td className="py-3 px-4 text-sm">
                     {student.course}° "{student.division}"
                   </td>

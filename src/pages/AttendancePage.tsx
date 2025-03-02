@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAttendance } from '../context/AttendanceContext';
 import CourseSelector from '../components/CourseSelector';
-import { Calendar, CheckCircle, XCircle } from 'lucide-react';
+import { Calendar, CheckCircle, XCircle, Loader } from 'lucide-react';
 import { divisions, years } from '../types';
 
 const AttendancePage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const { getStudentsByCourse } = useAttendance();
+  const { getStudentsByCourse, loading } = useAttendance();
   
   const initialYear = searchParams.get('year') 
     ? parseInt(searchParams.get('year') as string) 
@@ -40,6 +40,15 @@ const AttendancePage: React.FC = () => {
   const presentPercentage = totalStudents > 0 
     ? Math.round((presentStudents / totalStudents) * 100) 
     : 0;
+  
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col items-center justify-center">
+        <Loader size={40} className="text-indigo-600 animate-spin mb-4" />
+        <p className="text-gray-600">Cargando datos de asistencia...</p>
+      </div>
+    );
+  }
   
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -140,6 +149,7 @@ const AttendancePage: React.FC = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Nombre</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">DNI</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Estado</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Hora</th>
                 </tr>
@@ -153,6 +163,7 @@ const AttendancePage: React.FC = () => {
                   return (
                     <tr key={student.id} className="hover:bg-gray-50">
                       <td className="py-3 px-4">{student.name}</td>
+                      <td className="py-3 px-4">{student.dni}</td>
                       <td className="py-3 px-4">
                         {attendanceRecord ? (
                           attendanceRecord.present ? (

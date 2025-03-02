@@ -2,32 +2,55 @@ import React, { useState } from 'react';
 import { useAttendance } from '../context/AttendanceContext';
 import CourseSelector from '../components/CourseSelector';
 import StudentList from '../components/StudentList';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Loader } from 'lucide-react';
 import { divisions, years } from '../types';
 
 const StudentsPage: React.FC = () => {
-  const { addStudent, getStudentsByCourse, deleteStudent } = useAttendance();
+  const { addStudent, getStudentsByCourse, deleteStudent, loading } = useAttendance();
   const [selectedYear, setSelectedYear] = useState<number>(1);
   const [selectedDivision, setSelectedDivision] = useState<string>("I");
   const [newStudentName, setNewStudentName] = useState<string>("");
+  const [newStudentDNI, setNewStudentDNI] = useState<string>("");
   const [isAddingStudent, setIsAddingStudent] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const students = getStudentsByCourse(selectedYear, selectedDivision);
 
-  const handleAddStudent = (e: React.FormEvent) => {
+  const handleAddStudent = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newStudentName.trim()) {
-      addStudent(newStudentName.trim(), selectedYear, selectedDivision);
-      setNewStudentName("");
-      setIsAddingStudent(false);
+    if (newStudentName.trim() && newStudentDNI.trim()) {
+      setIsSubmitting(true);
+      try {
+        await addStudent(newStudentName.trim(), selectedYear, selectedDivision, newStudentDNI.trim());
+        setNewStudentName("");
+        setNewStudentDNI("");
+        setIsAddingStudent(false);
+      } catch (error) {
+        console.error("Error adding student:", error);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
-  const handleDeleteStudent = (id: string) => {
+  const handleDeleteStudent = async (id: string) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este estudiante? Esta acción no se puede deshacer.")) {
-      deleteStudent(id);
+      try {
+        await deleteStudent(id);
+      } catch (error) {
+        console.error("Error deleting student:", error);
+      }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col items-center justify-center">
+        <Loader size={40} className="text-indigo-600 animate-spin mb-4" />
+        <p className="text-gray-600">Cargando estudiantes...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -52,7 +75,7 @@ const StudentsPage: React.FC = () => {
       {isAddingStudent && (
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
           <h2 className="text-lg font-semibold mb-4">Agregar Nuevo Estudiante</h2>
-          <form onSubmit={handleAddStudent} className="flex flex-col sm:flex-row gap-4">
+          <form onSubmit={handleAddStudent} className="flex flex-col gap-4">
             <div className="flex-1">
               <label htmlFor="studentName" className="block text-sm font-medium text-gray-700 mb-1">
                 Nombre del Estudiante
@@ -65,24 +88,50 @@ const StudentsPage: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Nombre completo"
                 required
+                disabled={isSubmitting}
               />
             </div>
-            <div className="flex items-end space-x-2">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-              >
-                Guardar
-              </button>
+            <div className="flex-1">
+              <label htmlFor="studentDNI" className="block text-sm font-medium text-gray-700 mb-1">
+                DNI del Estudiante
+              </label>
+              <input
+                type="text"
+                id="studentDNI"
+                value={newStudentDNI}
+                onChange={(e) => setNewStudentDNI(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="DNI"
+                required
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
               <button
                 type="button"
                 onClick={() => {
                   setIsAddingStudent(false);
                   setNewStudentName("");
+                  setNewStudentDNI("");
                 }}
                 className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                disabled={isSubmitting}
               >
                 Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader size={18} className="animate-spin mr-2" />
+                    Guardando...
+                  </>
+                ) : (
+                  'Guardar'
+                )}
               </button>
             </div>
           </form>

@@ -3,6 +3,7 @@ export interface Student {
   name: string;
   course: number;
   division: string;
+  dni: string; // Added DNI field
   attendanceRecords: AttendanceRecord[];
 }
 

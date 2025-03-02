@@ -4,11 +4,11 @@ import { Student } from '../types';
 
 interface StudentQRProps {
   student: Student;
-  baseUrl: string;
 }
 
-const StudentQR: React.FC<StudentQRProps> = ({ student, baseUrl }) => {
-  const qrValue = `${student.id}`;
+const StudentQR: React.FC<StudentQRProps> = ({ student }) => {
+  // Now the QR code directly contains the student's DNI
+  const qrValue = student.dni;
 
   return (
     <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md">
@@ -19,7 +19,7 @@ const StudentQR: React.FC<StudentQRProps> = ({ student, baseUrl }) => {
       <div className="bg-white p-3 rounded-lg">
         <QRCode value={qrValue} size={180} />
       </div>
-      <p className="mt-3 text-sm text-gray-500">ID: {student.id.substring(0, 8)}</p>
+      <p className="mt-3 text-sm text-gray-500">DNI: {student.dni}</p>
     </div>
   );
 };

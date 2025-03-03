@@ -17,63 +17,63 @@ const ScanPage: React.FC = () => {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
   
   useEffect(() => {
+    if (showScanner) {
+      // Create and render the scanner only when the showScanner is true
+      const qrCodeSuccessCallback = (decodedText: string) => {
+        // The QR content is directly the student's DNI
+        const scannedDNI = decodedText;
+        setStudentDNI(scannedDNI);
+        
+        // Stop scanning
+        if (scannerRef.current) {
+          scannerRef.current.clear();
+        }
+        
+        setShowScanner(false);
+        
+        // Process the scanned student DNI
+        const student = getStudentByDNI(scannedDNI);
+        if (student) {
+          setScannedStudent(student);
+          setError(null);
+        } else {
+          setScannedStudent(null);
+          setError("Estudiante no encontrado. Verifica el QR e intenta nuevamente.");
+        }
+      };
+      
+      const qrCodeErrorCallback = (error: any) => {
+        console.log("QR scanning ongoing...");
+      };
+      
+      // Configuration for the scanner
+      const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        rememberLastUsedCamera: true,
+      };
+      
+      // Initialize the scanner
+      scannerRef.current = new Html5QrcodeScanner(
+        "qr-reader",
+        config,
+        /* verbose= */ false
+      );
+      
+      scannerRef.current.render(qrCodeSuccessCallback, qrCodeErrorCallback);
+    }
+    
     // Cleanup function to stop scanner when component unmounts
     return () => {
       if (scannerRef.current) {
         scannerRef.current.clear();
       }
     };
-  }, []);
-  
-  // Function to handle QR code scanning with HTML5QrcodeScanner
+  }, [showScanner]);
+
   const startScanner = () => {
     setShowScanner(true);
     setError(null);
-    
-    // Create and render the scanner
-    const qrCodeSuccessCallback = (decodedText: string) => {
-      // The QR content is directly the student's DNI
-      const scannedDNI = decodedText;
-      setStudentDNI(scannedDNI);
-      
-      // Stop scanning
-      if (scannerRef.current) {
-        scannerRef.current.clear();
-      }
-      
-      setShowScanner(false);
-      
-      // Process the scanned student DNI
-      const student = getStudentByDNI(scannedDNI);
-      if (student) {
-        setScannedStudent(student);
-        setError(null);
-      } else {
-        setScannedStudent(null);
-        setError("Estudiante no encontrado. Verifica el QR e intenta nuevamente.");
-      }
-    };
-    
-    const qrCodeErrorCallback = (error: any) => {
-      // This callback is triggered frequently during scanning, so we don't want to set error state here
-      console.log("QR scanning ongoing...");
-    };
-    
-    // Configuration for the scanner
-    const config = {
-      fps: 10,
-      qrbox: { width: 250, height: 250 },
-      rememberLastUsedCamera: true,
-    };
-    
-    // Initialize the scanner
-    scannerRef.current = new Html5QrcodeScanner(
-      "qr-reader",
-      config,
-      /* verbose= */ false
-    );
-    
-    scannerRef.current.render(qrCodeSuccessCallback, qrCodeErrorCallback);
   };
   
   const stopScanner = () => {

@@ -98,7 +98,10 @@ export const AttendanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const addStudent = async (name: string, course: number, division: string, dni: string): Promise<Student> => {
     try {
       const newStudentId = uuidv4();
-      
+      console.log('Generated Student ID:', newStudentId);
+
+      console.log('Adding student:', { name, course, division, dni });
+
       // Insert into Supabase
       const { error } = await supabase
         .from('students')
@@ -110,11 +113,11 @@ export const AttendanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           dni,
           created_at: new Date().toISOString()
         });
-      
+
       if (error) {
         throw error;
       }
-      
+
       const newStudent: Student = {
         id: newStudentId,
         name,
@@ -123,12 +126,14 @@ export const AttendanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         dni,
         attendanceRecords: []
       };
-      
+
+      console.log('Student inserted successfully:', newStudent);
+
       setStudents(prev => [...prev, newStudent]);
       return newStudent;
     } catch (error) {
       console.error('Error adding student:', error);
-      
+
       // Fallback to local state if Supabase fails
       const newStudent: Student = {
         id: uuidv4(),
@@ -138,11 +143,13 @@ export const AttendanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         dni,
         attendanceRecords: []
       };
-      
+
+      console.log('Adding student to local state as fallback:', newStudent);
+
       setStudents(prev => [...prev, newStudent]);
       return newStudent;
     }
-  };
+};
 
   const getStudent = (id: string): Student | undefined => {
     return students.find(student => student.id === id);
